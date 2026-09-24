@@ -11,7 +11,7 @@ Este repositorio contiene la resolución de la Práctica 04 del módulo de Big D
 * **Análisis de costes:** Monitorización del gasto diario a través de *Azure Cost Management* y comprobación empírica de la diferencia de costes entre "apagar desde el SO" y "desasignar desde el portal".
 
 
-## 📄 Estructura de entrega
+## Estructura de entrega
 
 * `practica4.md`: Documento principal en formato mardown.
 * `Practica04_ISAAC_Sanchez.pdf`: Documento principal de la práctica con la resolución de todas las secciones, preguntas teóricas y capturas de evidencia.
