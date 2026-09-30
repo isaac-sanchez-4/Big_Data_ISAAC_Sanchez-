@@ -1,0 +1,4 @@
+SELECT titulo
+FROM dbo.canciones
+ORDER BY titulo ASC
+OFFSET (5) ROWS FETCH NEXT 5 ROWS ONLY;

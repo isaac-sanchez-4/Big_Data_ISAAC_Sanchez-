@@ -1,0 +1,7 @@
+ALTER TABLE dbo.playlists
+ADD descripcion nvarchar(200) NULL,
+    CONSTRAINT CK_playlists_nombre CHECK (LEN(nombre) >= 3);
+
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'playlists';
