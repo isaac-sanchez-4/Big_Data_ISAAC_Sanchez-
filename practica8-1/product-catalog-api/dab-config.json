@@ -1,0 +1,147 @@
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/latest/download/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "@env('DATABASE_CONNECTION_STRING')"
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api",
+      "request-body-strict": true
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "host": {
+      "cors": null,
+      "authentication": null,
+      "mode": "development"
+    }
+  },
+  "autoentities": {},
+  "entities": {
+    "Category": {
+      "source": {
+        "object": "dbo.Categories",
+        "type": "table"
+      },
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Category",
+          "plural": "Categories"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read"
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "products": {
+          "cardinality": "many",
+          "target.entity": "Product",
+          "source.fields": [
+            "CategoryID"
+          ],
+          "target.fields": [
+            "CategoryID"
+          ]
+        }
+      }
+    },
+    "Product": {
+      "source": {
+        "object": "dbo.Products",
+        "type": "table"
+      },
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Product",
+          "plural": "Products"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read"
+            }
+          ]
+        },
+        {
+          "role": "authenticated",
+          "actions": [
+            {
+              "action": "*"
+            }
+          ]
+        }
+      ],
+      "mappings": {
+        "ProductID": "id",
+        "ProductName": "name",
+        "UnitPrice": "price",
+        "UnitsInStock": "stockQuantity",
+        "Discontinued": "isDiscontinued"
+      },
+      "relationships": {
+        "category": {
+          "cardinality": "one",
+          "target.entity": "Category",
+          "source.fields": [
+            "CategoryID"
+          ],
+          "target.fields": [
+            "CategoryID"
+          ]
+        }
+      }
+    },
+    "ProductCatalog": {
+      "source": {
+        "object": "dbo.ProductCatalogView",
+        "type": "view",
+        "key-fields": [
+          "ProductID"
+        ]
+      },
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "ProductCatalog",
+          "plural": "ProductCatalogs"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "read"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
