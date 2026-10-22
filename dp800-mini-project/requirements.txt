@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+streamlit
+requests
+pyodbc
+pymupdf
+langchain-community
+langchain-text-splitters
+langchain-ollama
+langchain-core
