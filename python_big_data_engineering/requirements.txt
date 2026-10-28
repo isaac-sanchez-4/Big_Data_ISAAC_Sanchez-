@@ -1,0 +1,2 @@
+# Dependencias comunes de las clases de Python
+# Clase 18: solo biblioteca estándar de Python, sin librerías externas
