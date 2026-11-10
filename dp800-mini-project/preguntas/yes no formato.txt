@@ -1,0 +1,5 @@
+Unit tests run automatically whenever changes are pusid to main. [] yes [] no
+
+Schema validation occurs during the Build step. [] yes []no
+
+Schema validation occurs during the Deploy step. [] yes [] no

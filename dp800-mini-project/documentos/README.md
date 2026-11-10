@@ -1,13 +1,9 @@
-Aquí tienes la redacción completa, profesional y lista para copiar y pegar en tu archivo **`README.md`** en la raíz de tu repositorio de GitHub. Está estructurada para reflejar perfectamente el nivel técnico de tu proyecto:
 
-```markdown
-# 🎓 Tutor Inteligente RAG para la Certificación DP-800
+# Tutor Inteligente RAG para la Certificación DP-800
 
 Sistema de recuperación y generación aumentada (**RAG**) local y de alta velocidad, diseñado como tutor técnico especializado en resolver escenarios de examen y preguntas complejas sobre administración, optimización y desarrollo en **SQL Server 2025** y **Azure SQL**.
 
----
-
-## 🏗️ Arquitectura de la Solución
+## Arquitectura de la Solución
 
 El sistema sigue un modelo desacoplado cliente-servidor 100% local, garantizando un coste de operación de cero y una privacidad absoluta:
 
@@ -19,7 +15,7 @@ El sistema sigue un modelo desacoplado cliente-servidor 100% local, garantizando
 
 ---
 
-## 📂 Estructura del Repositorio
+## Estructura del Repositorio
 
 ```text
 dp800-mini-project/
@@ -55,7 +51,7 @@ dp800-mini-project/
 
 ---
 
-## ⚙️ Requisitos Previos
+## Requisitos Previos
 
 Asegúrate de tener instalado en tu entorno local:
 
@@ -73,7 +69,7 @@ ollama pull nomic-embed-text
 
 ---
 
-## 🚀 Guía de Instalación y Despliegue
+## Guía de Instalación y Despliegue
 
 ### 1. Clonar el repositorio
 
@@ -126,14 +122,8 @@ streamlit run frontend/app.py
 
 ---
 
-## 📊 Características Destacadas (Nivel Avanzado)
+## Características Destacadas (Nivel Avanzado)
 
 * **Búsqueda Vectorial Nativa:** Sin dependencias externas de vectores en Python; todo se procesa directamente en el motor relacional de SQL Server 2025 mediante `VECTOR(768)` y `VECTOR_DISTANCE`.
 * **Aislamiento de Contexto (*Query Rewriter*):** Evita la contaminación del historial de chat al cambiar de tema técnico.
 * **Telemetría en Vivo:** Mide con precisión milimétrica los tiempos de consulta a la base de datos y muestra las páginas exactas del manual oficial consultadas.
-
-```
-
-Guarda este texto en un archivo llamado **`README.md`** en la carpeta raíz de tu proyecto. ¡Con esto tienes la documentación perfecta para subir a GitHub!
-
-```

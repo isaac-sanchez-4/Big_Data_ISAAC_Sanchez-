@@ -31,7 +31,7 @@ class DocumentoSimulado:
         self.metadata = metadata
 
 
-def buscar_en_sql_server(query: str, top_k: int = 8):
+def buscar_en_sql_server(query: str, top_k: int = 12):
     """
     Genera el vector con Ollama, mide el tiempo exacto de respuesta y recupera
     los fragmentos y números de página desde SQL Server 2025
@@ -101,38 +101,34 @@ def estado():
 
 
 # PROMPTS BLINDADOS (FORMATO EXAMEN DP-800)
-template_estricto = """Eres un examinador oficial de Microsoft para la certificación DP-800 / DP-300. Resuelve la pregunta del usuario con rigor técnico.
+template_estricto = """You are an official Microsoft Certified Expert examiner for the DP-800 certification. Analyze the user's question with absolute technical rigor and respond ENTIRELY IN ENGLISH.
 
-REGLA CRÍTICA SOBRE EL CONTEXTO:
-- Analiza SIEMPRE las opciones o afirmaciones de la "Pregunta del usuario".
-- Si los fragmentos del "Contexto recuperado" tratan de un tema distinto al de la pregunta (por ejemplo, hablan de búsquedas CONTAINS/NEAR o secuencias cuando la pregunta trata sobre funciones UDF/TVF), IGNORA esos fragmentos irrelevantes y responde basándote estrictamente en las reglas técnicas de SQL Server y Azure SQL.
+STEP 1: DETECT THE QUESTION FORMAT CAREFULLY
+- **TYPE 1 (Single-Choice Multiple Choice - A, B, C, D):** 
+  * If the question asks to choose ONE correct option from a list of choices (A, B, C, D):
+  * YOU MUST SELECT ONLY ONE OPTION. 
+  * Mandatory output format:
+    **[Exact Letter A, B, C, or D]. [Exact option text]**
+    [Detailed technical justification explaining why this option is correct and why A, B, C, and D alternatives are discarded].
 
-REGLAS DE FORMATO OBLIGATORIAS:
-1. SI LA PREGUNTA ES DE OPCIÓN MÚLTIPLE (A, B, C, D):
-   - Primera línea: **[Letra]. [Texto exacto de la opción correcta]**
-   - Siguiente párrafo: Justificación técnica clara de por qué es correcta y por qué se descartan las demás.
+- **TYPE 2 (Multiple Statements / Yes-No per statement):** 
+  * If the question presents numbered statements (1, 2, 3) requiring a Yes/No evaluation for each:
+  * Mandatory output format:
+    **1. [Yes / No]:** [Technical explanation]
+    **2. [Yes / No]:** [Technical explanation]
+    **3. [Yes / No]:** [Technical explanation]
 
-2. SI LA PREGUNTA TIENE DECLARACIONES NUMERADAS (1, 2, 3 / Sí o No / Verdadero o Falso):
-   -Evalúa EXACTAMENTE cada afirmación numerada de la pregunta del usuario con este formato:
-   - **1. [No / Falso o Sí / Verdadero]:** [Explicación técnica]
-   - **2. [No / Falso o Sí / Verdadero]:** [Explicación técnica]
-   - **3. [No / Falso o Sí / Verdadero]:** [Explicación técnica]
+STRICT TECHNICAL & EVIDENCE RULES:
+- Base your answers strictly on the technical architecture of Azure SQL and SQL Server 2025.
+- If it's a Type 1 question, NEVER use a "1. Yes / 2. No" list format. Pick the letter directly.
 
-REGLAS TÉCNICAS INQUEBRANTABLES DE MICROSOFT:
-- UDFs escalares (como dbo.ufn_GetTaxMultiplier): Tienen PROHIBIDO usar funciones no deterministas como GETDATE() o NEWID() (Afirmación 1 = No / Falso).
-- TVFs de múltiples instrucciones (MSTVF, como Sales.mstvf_OrderStatus): Producen planes inconsistentes; reescribirlas como Inline TVF (iTVF) SÍ reduce los planes inconsistentes (Afirmación 2 = Sí / Verdadero).
-- Llamadas a UDF escalares en EXEC o SELECT: Exigen obligatoriamente el nombre de esquema en dos partes (dbo.ufn_GetTaxMultiplier); añadir el esquema SÍ resuelve el error (Afirmación 3 = Sí / Verdadero).
-- Always Encrypted: 'Randomized' impide inferir relaciones o repeticiones. 'Deterministic' genera siempre el mismo ciphertext (permite WHERE/JOIN pero revela repeticiones).
-- Azure SQL Database: Para Managed Identities en bases de datos de usuario se usa 'CREATE USER [Id] FROM EXTERNAL PROVIDER' (nunca CREATE LOGIN).
-
-Contexto recuperado de SQL Server 2025:
+Retrieved context from documentation:
 {context}
 
-Pregunta del usuario:
+User's Question / Options:
 {question}
 
-Respuesta en español:"""
-
+Technical response in English:"""
 prompt_verdad = PromptTemplate.from_template(template_estricto)
 
 
@@ -143,18 +139,39 @@ async def endpoint_chat(peticion: PeticionChat):
     historial = peticion.historial
 
     # 1. EL GUARDIA DE TRÁFICO
-    prompt_guardia = f"""Clasifica el siguiente TEXTO DEL USUARIO en 'CHAT' o 'BUSCAR':
-    "hola" -> CHAT
-    "buenas tardes" -> CHAT
-    "muchas gracias" -> CHAT
-    "¿Qué se usaría al crear un usuario en SQL...?" -> BUSCAR
-    "¿Qué es el tipo VECTOR?" -> BUSCAR
-    "Tiene una base de datos..." -> BUSCAR
+    prompt_guardia = f"""Actúa como un clasificador binario estricto para un tutor técnico de la certificación DP-800.
+    Analiza la intención del usuario y clasifícala estrictamente en una de estas dos categorías:
+    - 'CHAT': Si el usuario saluda, se despide, hace una pregunta personal, pide una historia de ficción, chatea o habla de temas ajenos a bases de datos o SQL Server.
+    - 'BUSCAR': Si el usuario pregunta sobre SQL Server, Azure SQL, bases de datos, consultas T-SQL, índices, rendimiento, arquitectura de datos o pega un enunciado de examen/caso de estudio.
 
-    REGLA: Cualquier pregunta sobre SQL, bases de datos, usuarios, permisos o exámenes es SIEMPRE 'BUSCAR'. Solo saludos o despedidas son 'CHAT'.
+    Ejemplos:
+    - "Hola, ¿qué tal?" -> CHAT
+    - "Cuéntame un cuento de ciencia ficción" -> CHAT
+    - "Gracias por la ayuda" -> CHAT
+    - "¿Cómo optimizo un índice nonclustered?" -> BUSCAR
+    - "You have an Azure SQL database..." -> BUSCAR
 
     TEXTO DEL USUARIO: "{pregunta}"
-    Clasificación (responde SOLO con CHAT o BUSCAR):"""
+    Responde ÚNICAMENTE con la palabra CHAT o la palabra BUSCAR, sin explicaciones adicionales:"""
+
+    intencion = llm_estricto.invoke(prompt_guardia).strip().upper()
+    print(f"\n[TELEMETRÍA] Intención resuelta: {intencion}")
+
+    # Enrutamiento directo basado puramente en la intención semántica
+    if "CHAT" in intencion:
+        def generar_chat():
+            meta = json.dumps({
+                "tipo": "chat",
+                "fuentes": [],
+                "tiempo_sql_ms": 0,
+                "query_ejecutada": pregunta
+            })
+            yield f"<<<META_START>>>{meta}<<<META_END>>>"
+            prompt_chat = f"Eres el Tutor Inteligente de la certificación DP-800. Responde en el idioma en el que te habla el usuario, de forma amigable y natural, a: '{pregunta}'"
+            for chunk in llm_estricto.stream(prompt_chat):
+                yield chunk.content if hasattr(chunk, 'content') else str(chunk)
+
+        return StreamingResponse(generar_chat(), media_type="text/event-stream")
 
     intencion = llm_estricto.invoke(prompt_guardia).strip().upper()
     print(f"\n[TELEMETRÍA] Intención resuelta: {intencion}")
