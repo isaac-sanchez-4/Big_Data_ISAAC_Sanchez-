@@ -16,3 +16,4 @@ Windows 11 · Python 3.12 · PowerShell
 |---|---|---|
 | 18 | Clases y objetos | `clase_18_clases_objetos/` |
 | 19 | Clase 19         | `clase_19_detalles_objetos`|
+| 20 | herencia y polimorfismo| `clase_20_herencia_y_polimorfismo`|
