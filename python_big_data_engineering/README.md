@@ -15,3 +15,4 @@ Windows 11 · Python 3.12 · PowerShell
 | Clase | Tema | Carpeta |
 |---|---|---|
 | 18 | Clases y objetos | `clase_18_clases_objetos/` |
+| 19 | Clase 19         | `clase_19_detalles_objetos`|

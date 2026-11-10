@@ -1,0 +1,30 @@
+class Valoracion:
+    def __init__(self, texto):
+        # Extrae la parte anterior a la barra, cambia coma por punto y pasa a float
+        parte_nota = texto.split("/")[0].replace(",", ".")
+        self.__nota = float(parte_nota)
+
+    def __float__(self):
+        return self.__nota
+
+    def __int__(self):
+        return round(self.__nota)
+
+    def __bool__(self):
+        return self.__nota > 0.0
+
+    def __str__(self):
+        entera = int(self)
+        estrellas_llenas = "★" * entera
+        estrellas_vacias = "☆" * (5 - entera)
+        return f"{estrellas_llenas}{estrellas_vacias} ({self.__nota:.1f})"
+
+
+# Código de prueba
+respuestas = ["4,5/5", "3/5", "0/5", "2,4/5", "5/5", "0/5"]
+valoraciones = [Valoracion(r) for r in respuestas]
+for v in valoraciones:
+    print(str(v), float(v), int(v), bool(v))
+validas = [v for v in valoraciones if v]
+print("Respuestas válidas:", len(validas), "de", len(valoraciones))
+print("Media:", round(sum([float(v) for v in validas]) / len(validas), 2))
