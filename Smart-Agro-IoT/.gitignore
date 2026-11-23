@@ -1,0 +1,14 @@
+# Credenciales y secretos
+.streamlit/
+secrets.toml
+
+# Entornos virtuales y caché de Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Configuración de IDEs
+.idea/
+.vscode/
+.DS_Store
